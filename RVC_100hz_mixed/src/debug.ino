@@ -3,7 +3,25 @@ void checkUSBSerial()
   if (Serial.available())
   {
     uint8_t usbRead = Serial.read();
-    if (usbRead == 'r')
+    if (usbRead == 'h')
+    {
+      Serial.print("\r\n Help:");
+      Serial.print("\r\n  r - Resetting hi/lo stats");
+      Serial.print("\r\n  a - Setting WAS ADC value debug");
+      Serial.print("\r\n  e - Setting ESP32 debug");
+      Serial.print("\r\n  k - Setting Keya debug");
+      Serial.print("\r\n  w - Setting workswitch debug");
+      Serial.print("\r\n  n - Setting NMEA debug");
+      Serial.print("\r\n  p - Setting PWM / current sensor debug");
+      Serial.print("\r\n  c - Setting CPU usage debug");
+      Serial.print("\r\n  s - Setting Print Stats");
+#ifdef AIOv50a
+      Serial.print((String) "\r\n  m - Machine debugLevel");
+#endif
+      Serial.print((String) "\r\n  g - temporarily set GPS fix state according to standard GGA fix numbers (see LEDS.h, setGpsLED())");
+      Serial.print((String) "\r\n  l - set RGB brightness");
+    }
+    else if (usbRead == 'r')
     {
       Serial.print("\r\n\n* Resetting hi/lo stats *");
       gps1Stats.resetAll();
