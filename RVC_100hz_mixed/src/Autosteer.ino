@@ -390,7 +390,7 @@ void autoSteerUpdate()
         Serial.print(" Teensy ADC(x");
         Serial.print(SteerAngleADCMultiplier);
         Serial.print("): ");
-        Serial.println(steeringPosition);
+        Serial.print(steeringPosition);
         // Serial.printf(" Teensy ADC(x3.23):%5i", steeringPosition);
       }
     }
@@ -438,6 +438,11 @@ void autoSteerUpdate()
     if (steerAngleActual < 0)
       steerAngleActual = (steerAngleActual * steerSettings.AckermanFix); // Ackerman fix
     steerAngleError = steerAngleActual - steerAngleSetPoint;             // calculate the steering error
+    if (adcDebug) {
+        Serial.print(" cor. steerPos: "); Serial.print(steeringPosition);
+        Serial.print(" act. steerAngle: "); Serial.println(steerAngleActual);
+    }
+
     // if (abs(steerAngleError)< steerSettings.lowPWM) steerAngleError = 0;
 
     // ******************************** WATCHDOG checks & PWM output ********************************
@@ -497,10 +502,9 @@ void autoSteerUpdate()
         else
           steerStateONTime = 0;
       }
-      if (gpsSpeed < 0.18)
-      {
-        pwmDrive = 0;
-      } // do not turn steering wheel under 1.8 km/h
+
+      if (gpsSpeed < 0.18) { pwmDrive = 0; } // do not turn steering wheel under 1.8 km/h
+      if (abs(steerAngleError) < 0.2) { pwmDrive = 0; } // do not run steering wheel when angle error is less then 0.5 deg
 
       motorDrive(); // out to motors the pwm value
 

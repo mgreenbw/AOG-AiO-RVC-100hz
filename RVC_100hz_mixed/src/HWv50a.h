@@ -27,7 +27,7 @@
 #define Hardware_H
 
 #define AIOv50a
-const char inoVersion[] = "RVC 100hz AiO v5.0a alpha - " __DATE__;
+const char inoVersion[] = "AiO V5.0b PWM ramp, Ethernet update - " __DATE__;
 
 // ********* IO Defines *********
 const uint8_t WAS_SENSOR_PIN = A15; // WAS input

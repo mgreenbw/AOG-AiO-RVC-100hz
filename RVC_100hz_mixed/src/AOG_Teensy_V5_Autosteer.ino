@@ -101,7 +101,7 @@ void loop()
     ESP32usage.timeIn();
     unsigned int ESP32InPacketLength = 0;
     // ESP32 data?
-    while (SerialESP32.available())
+    if (SerialESP32.available())// while (SerialESP32.available())
     {
         ESP32InPacketLength = SerialESP32.available();
         if (ESP32InPacketLength)
@@ -156,8 +156,7 @@ void loop()
     // wait 40 msec (F9P) from prev GGA update, then update imu data for next PANDA sentence
     if (imuPandaSyncTrigger && imuPandaSyncTimer >= 40)
     {
-        prepImuPandaData();
-        imuPandaSyncTrigger = false; // wait for next GGA update before resetting imuDelayTimer again
+        if (prepImuPandaData()) imuPandaSyncTrigger = false; // wait for next GGA update before resetting imuDelayTimer again
     }
 
     // ******************* "Right" Dual or Single GPS1 (position) *******************

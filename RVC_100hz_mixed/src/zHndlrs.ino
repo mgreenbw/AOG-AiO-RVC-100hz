@@ -57,55 +57,60 @@ void errorHandler()
     Serial.print("\r\n*** Unexpected characters in NMEA parser ***");
 }
 
-void prepImuPandaData() // run after GGA update + 40ms (timing for PANDA), for next GGA
+bool prepImuPandaData() // run after GGA update + 40ms (timing for PANDA), for next GGA
 {
-  if (BNO.isActive)
-  {
-    itoa(BNO.rvcData.yawX10, IMU.heading, 10); // format IMU data for Panda Sentence - Heading
+    if (BNO.isActive)
+        if (!BNO.rvcData.yawX10 == 0) {//BNO data ok?
+            {
+                itoa(BNO.rvcData.yawX10, IMU.heading, 10); // format IMU data for Panda Sentence - Heading
 
-    if (BNO.isSwapXY)
+                if (BNO.isSwapXY)
+                {
+                    itoa(BNO.rvcData.pitchX10, IMU.roll, 10); // the pitch x10
+                    itoa(BNO.rvcData.rollX10, IMU.pitch, 10); // the roll x10
+                }
+                else
+                {
+                    itoa(BNO.rvcData.pitchX10, IMU.pitch, 10); // the pitch x10
+                    itoa(BNO.rvcData.rollX10, IMU.roll, 10);   // the roll x10
+                }
+
+                // Serial.print(BNO.angCounter);
+                // Serial.print(", ");
+                // Serial.print(BNO.rvcData.angVel);
+                // Serial.print(", ");
+
+                // YawRate
+                double angVel;
+                if (BNO.angCounter > 0)
+                {
+                    angVel = ((double)BNO.rvcData.angVel) / (double)BNO.angCounter;
+                    angVel *= 10.0;
+                    BNO.angCounter = 0;
+                    BNO.rvcData.angVel = (int16_t)angVel;
+                }
+                else
+                {
+                    BNO.rvcData.angVel = 0;
+                }
+
+                itoa(BNO.rvcData.angVel, IMU.yawRate, 10);
+                BNO.rvcData.angVel = 0;
+
+                // digitalWrite(GPS_RED_LED, 0);
+                // digitalWrite(GPS_GRN_LED, 0);
+            }
+            return true;
+        }
+        else return false; //BNO data is corrupt, so try again
+    else // No BNO in RVC mode or its disconnected, set IMU PANDA components to signal AOG that there's no IMU
     {
-      itoa(BNO.rvcData.pitchX10, IMU.roll, 10); // the pitch x10
-      itoa(BNO.rvcData.rollX10, IMU.pitch, 10); // the roll x10
+        itoa(65535, IMU.heading, 10);
+        IMU.roll[0] = 0;
+        IMU.pitch[0] = 0;
+        IMU.yawRate[0] = 0;
+        return true;
     }
-    else
-    {
-      itoa(BNO.rvcData.pitchX10, IMU.pitch, 10); // the pitch x10
-      itoa(BNO.rvcData.rollX10, IMU.roll, 10);   // the roll x10
-    }
-
-    // Serial.print(BNO.angCounter);
-    // Serial.print(", ");
-    // Serial.print(BNO.rvcData.angVel);
-    // Serial.print(", ");
-
-    // YawRate
-    double angVel;
-    if (BNO.angCounter > 0)
-    {
-      angVel = ((double)BNO.rvcData.angVel) / (double)BNO.angCounter;
-      angVel *= 10.0;
-      BNO.angCounter = 0;
-      BNO.rvcData.angVel = (int16_t)angVel;
-    }
-    else
-    {
-      BNO.rvcData.angVel = 0;
-    }
-
-    itoa(BNO.rvcData.angVel, IMU.yawRate, 10);
-    BNO.rvcData.angVel = 0;
-
-    // digitalWrite(GPS_RED_LED, 0);
-    // digitalWrite(GPS_GRN_LED, 0);
-  }
-  else // No BNO in RVC mode or its disconnected, set IMU PANDA components to signal AOG that there's no IMU
-  {
-    itoa(65535, IMU.heading, 10);
-    IMU.roll[0] = 0;
-    IMU.pitch[0] = 0;
-    IMU.yawRate[0] = 0;
-  }
 }
 
 void GNS_Handler() // Rec'd GNS
